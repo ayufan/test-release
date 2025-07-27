@@ -45,6 +45,7 @@ jobs:
     permissions:
       contents: write
     steps:
+    - run: sleep 15
     - name: Make release as pre-release
       uses: ncipollo/release-action@v1
       with:
