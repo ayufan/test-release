@@ -53,6 +53,7 @@ jobs:
         prerelease: true
         allowUpdates: true
         updateOnlyUnreleased: true
+        omitBodyDuringUpdate: true
 
   release:
     needs: [draft, upload, prerelease]
@@ -67,3 +68,4 @@ jobs:
         tag: ${{ env.TAG }}
         allowUpdates: true
         updateOnlyUnreleased: true
+        omitBodyDuringUpdate: true
