@@ -1,0 +1,66 @@
+on:
+  push:
+    branches:
+      - main
+
+env:
+  TAG: ref-${{ github.ref_name }}
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create draft release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ env.TAG }}
+        body: test
+        draft: true
+        generateReleaseNotes: true
+
+  upload:
+    needs: [draft]
+    runs-on: ubuntu-latest
+    steps:
+    - run: mkdir -p release
+    - run: echo "Release notes for ${{ env.TAG }}" > release/release_notes.txt
+    - name: Upload files to draft release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ env.TAG }}
+        artifacts: release/*.txt
+        allowUpdates: true
+        updateOnlyUnreleased: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        omitDraftDuringUpdate: true
+
+  prerelease:
+    needs: [draft, upload]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Make release as pre-release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ env.TAG }}
+        prerelease: true
+        allowUpdates: true
+        updateOnlyUnreleased: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        omitDraftDuringUpdate: true
+
+  release:
+    needs: [draft, upload, prerelease]
+    runs-on: ubuntu-latest
+    steps:
+    - run: sleep 60
+    - name: Make release as final release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ env.TAG }}
+        allowUpdates: true
+        updateOnlyUnreleased: true
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        omitDraftDuringUpdate: true
