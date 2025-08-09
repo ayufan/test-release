@@ -26,13 +26,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Run command
+      id: run_cmd
       run: "${{ !matrix.continue_on_error }}"
       continue-on-error: ${{ matrix.continue_on_error || false }}
     - uses: actions/upload-artifact@v4
+      if: steps.run_cmd.outcome == 'success' && success()
       with:
         name: proxmox-ve-${{ matrix.arch }}
         path: release/*.tgz
     - name: Run docker push for ${{matrix.arch}}
+      if: steps.run_cmd.outcome == 'success' && success()
       run: "true"
 
   manifest:
